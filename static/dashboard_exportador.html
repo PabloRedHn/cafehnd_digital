@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CaféHND Digital - Exportador</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8e0; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #4b2e2a; }
+        #token-info { word-break: break-all; background-color: #eee; padding: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📈 Panel de Exportador/Gestor</h1>
+        <p>Bienvenido al sistema. Aquí irán las opciones para gestionar tus operaciones.</p>
+        <ul>
+            <li>Registrar Compra Nacional</li>
+            <li>Registrar Venta Internacional</li>
+            <li>Solicitar Certificado de Exportación</li>
+            <li>Consultar Disponibilidad</li>
+            <!-- Más opciones -->
+        </ul>
+        <button onclick="cerrarSesion()">Cerrar Sesión</button>
+        <div id="token-info"></div>
+    </div>
+    <script>
+        const token = localStorage.getItem('token');
+        if (token) {
+            document.getElementById('token-info').innerHTML = `<strong>Token de acceso (para pruebas):</strong><br>${token}`;
+        } else {
+            window.location.href = '/static/index.html'; // Redirigir si no hay token
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('token');
+            window.location.href = '/static/index.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!-- static/registro.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitud de Registro - CaféHND Digital</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8e0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #4b2e2a; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { margin-top: 20px; padding: 10px; background-color: #4b2e2a; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
+        button:hover { background-color: #361d1c; }
+        #resultado { margin-top: 15px; padding: 10px; border-radius: 4px; text-align: center; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        small { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 Solicitud de Registro en CaféHND Digital</h1>
+        <p>Por favor, complete el siguiente formulario. Su solicitud será revisada y aprobada por el IHCAFE.</p>
+        <form id="registroForm" hx-post="/solicitar_registro" hx-target="#resultado">
+            <label for="nombre_completo">Nombre Completo / Razón Social:</label>
+            <input type="text" id="nombre_completo" name="nombre_completo" required>
+
+            <label for="email">Email de contacto:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="nombre_organizacion">Nombre de la Organización (si aplica):</label>
+            <input type="text" id="nombre_organizacion" name="nombre_organizacion">
+
+            <label for="tipo_entidad_solicitada">Tipo de Entidad:</label>
+            <select id="tipo_entidad_solicitada" name="tipo_entidad_solicitada" required>
+                <option value="">Seleccione...</option>
+                <option value="EXPORTADOR">Exportador</option>
+                <option value="GESTOR">Gestor</option>
+                <!-- <option value="IHCAFE">Personal IHCAFE</option> -->
+            </select>
+
+            <label for="mensaje_solicitud">Mensaje adicional (opcional):</label>
+            <textarea id="mensaje_solicitud" name="mensaje_solicitud" rows="4"></textarea>
+            <small>Por ejemplo, explique brevemente su relación con la industria del café o por qué necesita acceso.</small>
+
+            <button type="submit">Enviar Solicitud de Registro</button>
+        </form>
+        <div id="resultado"></div>
+    </div>
+</body>
+</html>

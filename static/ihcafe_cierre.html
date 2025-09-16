@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CaféHND Digital - IHCAFE - Cierres Diarios</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        :root {
+            --ihcafe-green: #4b2e2a;
+            --ihcafe-bg: #e0f0f8;
+            --success: #d4edda;
+            --error: #f8d7da;
+            --warning: #fff3cd;
+            --info: #d1ecf1;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--ihcafe-bg);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px; /* Aumentado para acomodar 4 columnas */
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: var(--ihcafe-green);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        /* Ajuste para el campo de fecha */
+        input[type="date"] {
+            width: auto;
+            padding: 8px;
+        }
+        /* Estilo específico para campos numéricos */
+        input[type="text"] {
+             text-align: right; /* Alinear a la derecha para números */
+        }
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: var(--ihcafe-green);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #361d1c;
+        }
+        #resultado {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .error {
+            background-color: var(--error);
+            color: #721c24;
+        }
+        .success {
+            background-color: var(--success);
+            color: #155724;
+        }
+        .info-box {
+            background-color: var(--warning);
+            padding: 15px;
+            border-left: 5px solid #ffc107;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .info-box-blue {
+            background-color: var(--info);
+            padding: 15px;
+            border-left: 5px solid #17a2b8;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .readonly {
+            background-color: #f9f9f9;
+            font-size: 0.9em;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .form-group-half {
+            flex: 0 0 calc(50% - 10px);
+        }
+        .form-group-small {
+            flex: 0 0 150px;
+        } /* Para la fecha */
+        .form-group-medium {
+            flex: 0 0 200px;
+        }
+        .form-group-full {
+            flex: 1 100%;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        .tasa-bch-input {
+            width: 120px;
+        }
+        .position-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        .position-table th, .position-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .position-table th {
+            background-color: #f2f2f2;
+        }
+        .position-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .position-table .close-input {
+            width: 100px;
+            text-align: right;
+        }
+        .loading {
+            color: #007bff;
+            font-style: italic;
+        }
+        #loading-indicator {
+            display: none;
+        }
+        /* Nuevos estilos para la tabla de 4 columnas */
+        .four-column-layout {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columnas de igual tamaño */
+            gap: 15px;
+        }
+        .four-column-layout .position-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .four-column-layout .position-item label {
+            font-weight: normal;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+        }
+        .four-column-layout .position-item input {
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .four-column-layout {
+                grid-template-columns: repeat(2, 1fr); /* 2 columnas en pantallas pequeñas */
+            }
+        }
+        @media (max-width: 480px) {
+            .four-column-layout {
+                grid-template-columns: 1fr; /* 1 columna en pantallas muy pequeñas */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☕ IHCAFE - Cierres Diarios (NY ICE & BCH)</h1>
+        <p>Ingrese o modifique los datos oficiales del día anterior para cálculos de exportadores.</p>
+
+        <!-- Sección: Último Cierre -->
+        <div class="section">
+            <h2>📅 Último Cierre Registrado</h2>
+            <div id="ultimo-cierre-placeholder">
+                <!-- Este div se actualizará con HTMX -->
+                <p>Cargando último cierre...</p>
+            </div>
+        </div>
+
+        <!-- Sección: Ingresar/Modificar Cierre -->
+        <div class="section">
+            <h2>➕ Registrar/Modificar Cierre</h2>
+            <form id="form-cierre">
+                <div class="form-row">
+                    <div class="form-group form-group-small">
+                        <label for="fecha" class="required">Fecha de Cierre:</label>
+                        <input type="date" id="fecha" name="fecha" required>
+                    </div>
+                    
+                    <div class="form-group form-group-medium">
+                        <label for="tasa_cambio_bch" class="required">Tasa BCH (Lps/USD):</label>
+                        <input type="text" id="tasa_cambio_bch" name="tasa_cambio_bch" placeholder="Ej: 24.5500" class="tasa-bch-input" required>
+                        <div class="readonly">Fuente: Banco Central de Honduras</div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Posiciones ICE (4 columnas) -->
+                <div class="section">
+                    <h3>📋 Posiciones ICE - Precios de Cierre (Close#)</h3>
+                    <p>Ingrese el valor del precio de cierre (<strong>CLOSE#</strong>) para cada posición.</p>
+                    <div id="loading-indicator" class="loading">Cargando datos...</div>
+                    <div class="four-column-layout" id="positions-grid">
+                        <!-- Los items se generarán dinámicamente con JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Campos ocultos con valores predefinidos -->
+                <input type="hidden" name="fuente_precio" value="ICE Futures">
+                <input type="hidden" name="fuente_tasa" value="Banco Central de Honduras">
+
+                <button type="button" id="guardar-btn">💾 Guardar/Actualizar Cierre</button>
+            </form>
+            <div id="resultado"></div>
+        </div>
+
+        <div class="info-box-blue">
+            <strong>ℹ️ Procedimiento:</strong>
+            <ul>
+                <li>Ingrese los datos del <strong>cierre del día anterior</strong> (precio NY ICE y tasa BCH del día hábil anterior).</li>
+                <li>La <strong>fecha</strong> corresponde al día del cierre (por ejemplo, si ingresa datos el Martes, la fecha es del Lunes).</li>
+                <li>La <strong>tasa BCH</strong> debe tener <strong>4 decimales</strong> (ej: 24.5500).</li>
+                <li>Ingrese el <strong>precio de cierre (CLOSE#)</strong> para cada posición futura del NY ICE.</li>
+                <li>Si ingresa una fecha existente, el registro se <strong>actualizará</strong>.</li>
+            </ul>
+        </div>
+        <div class="info-box">
+            <strong>💡 Notas:</strong>
+            <ul>
+                <li>Los campos "Fuente del Precio" y "Fuente de la Tasa" se llenan automáticamente.</li>
+                <li>El sistema verificará si ya existe un cierre para la fecha seleccionada y lo mostrará para edición.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuración ---
+        const BASE_URL = ""; // Se asume que el script corre desde el mismo dominio
+        const POSICIONES_ICE = [
+            { id: "dic24", nombre: "Diciembre-2024" },
+            { id: "mar25", nombre: "Marzo-2025" },
+            { id: "may25", nombre: "Mayo-2025" },
+            { id: "jul25", nombre: "Julio-2025" },
+            { id: "sep25", nombre: "Septiembre-2025" },
+            { id: "dic25", nombre: "Diciembre-2025" },
+            { id: "mar26", nombre: "Marzo-2026" },
+            { id: "may26", nombre: "Mayo-2026" },
+            { id: "jul26", nombre: "Julio-2026" },
+            { id: "sep26", nombre: "Septiembre-2026" }
+        ];
+
+        // --- Funciones Auxiliares ---
+        function mostrarResultado(mensaje, esExito = true) {
+            const divResultado = document.getElementById('resultado');
+            divResultado.innerHTML = `<div class="${esExito ? 'success' : 'error'}">${mensaje}</div>`;
+            setTimeout(() => { divResultado.innerHTML = ''; }, 5000); // Limpiar después de 5 segundos
+        }
+
+        function limpiarFormulario(limpiarFecha = true) {
+            const form = document.getElementById('form-cierre');
+            const elementos = form.elements;
+            for (let i = 0; i < elementos.length; i++) {
+                const elemento = elementos[i];
+                if (elemento.type !== "hidden") {
+                    if (elemento.type === "date" && !limpiarFecha) {
+                        // No limpiar la fecha si no se indica
+                    } else {
+                        elemento.value = '';
+                    }
+                }
+            }
+        }
+
+        // --- Inicialización al cargar la página ---
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("Interfaz IHCAFE Cierre cargada.");
+
+            // 1. Generar dinámicamente los campos de posiciones ICE
+            generarCamposPosiciones();
+
+            // 2. Establecer fecha actual como predeterminada
+            const hoy = new Date();
+            const año = hoy.getFullYear();
+            const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+            const dia = String(hoy.getDate()).padStart(2, '0');
+            document.getElementById('fecha').value = `${año}-${mes}-${dia}`;
+
+            // 3. Asignar evento change a la fecha para cargar datos
+            document.getElementById('fecha').addEventListener('change', function () {
+                const fechaSeleccionada = this.value;
+                if (fechaSeleccionada) {
+                    cargarDatosPorFecha(fechaSeleccionada);
+                }
+            });
+
+            // 4. Asignar evento click al botón de guardar
+            document.getElementById('guardar-btn').addEventListener('click', guardarCierre);
+
+            // 5. Cargar datos para la fecha predeterminada
+            setTimeout(() => {
+                const fechaPredeterminada = document.getElementById('fecha').value;
+                if (fechaPredeterminada) {
+                    cargarDatosPorFecha(fechaPredeterminada);
+                }
+            }, 500); // Pequeño retraso para asegurar que todo esté listo
+
+            // 6. Asignar validación en tiempo real a los campos numéricos
+            document.getElementById('tasa_cambio_bch').addEventListener('input', function(e) {
+                let valor = e.target.value.replace(/[^0-9.]/g, ''); // Solo números y punto
+                const partes = valor.split('.');
+                if (partes.length > 2) {
+                    valor = partes[0] + '.' + partes.slice(1).join(''); // Evitar múltiples puntos
+                }
+                if (partes[1] && partes[1].length > 4) {
+                     valor = partes[0] + '.' + partes[1].substring(0, 4); // Limitar a 4 decimales
+                }
+                e.target.value = valor;
+            });
+
+            POSICIONES_ICE.forEach(pos => {
+                const input = document.querySelector(`input[name="precio_posicion_${pos.id}"]`);
+                if (input) {
+                    input.addEventListener('input', function(e) {
+                        let valor = e.target.value.replace(/[^0-9.]/g, '');
+                        const partes = valor.split('.');
+                        if (partes.length > 2) {
+                            valor = partes[0] + '.' + partes.slice(1).join('');
+                        }
+                        if (partes[1] && partes[1].length > 2) {
+                             valor = partes[0] + '.' + partes[1].substring(0, 2); // Limitar a 2 decimales para precios
+                        }
+                        e.target.value = valor;
+                    });
+                }
+            });
+
+        });
+
+        // --- Función para generar dinámicamente los campos de posiciones ICE ---
+        function generarCamposPosiciones() {
+            const gridContainer = document.getElementById('positions-grid');
+            gridContainer.innerHTML = ''; // Limpiar cualquier contenido existente
+
+            POSICIONES_ICE.forEach(pos => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'position-item';
+                
+                const label = document.createElement('label');
+                label.htmlFor = `precio_posicion_${pos.id}`;
+                label.textContent = pos.nombre;
+                label.style.fontWeight = 'bold';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = `precio_posicion_${pos.id}`;
+                input.name = `precio_posicion_${pos.id}`;
+                input.placeholder = 'Ej: 150.50';
+                input.className = 'close-input';
+                
+                itemDiv.appendChild(label);
+                itemDiv.appendChild(input);
+                gridContainer.appendChild(itemDiv);
+            });
+        }
+
+        // --- Función para cargar datos cuando se cambia la fecha ---
+        async function cargarDatosPorFecha(fecha) {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const divResultado = document.getElementById('resultado');
+            const url = `${BASE_URL}/cierre_ny_bch/por_fecha/${fecha}`;
+
+            if (loadingIndicator) loadingIndicator.style.display = 'block';
+            if (divResultado) divResultado.innerHTML = '';
+
+            try {
+                const response = await fetch(url);
+                console.log(`[FETCH] GET ${url} - Status: ${response.status}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("[FETCH] Datos recibidos:", data);
+
+                    // Limpiar formulario antes de cargar (excepto la fecha)
+                    limpiarFormulario(false);
+
+                    // Rellenar campos del formulario con los datos recibidos
+                    document.getElementById('tasa_cambio_bch').value = data.tasa_cambio_bch !== null ? data.tasa_cambio_bch.toFixed(4) : '';
+
+                    // Rellenar campos de posiciones ICE
+                    POSICIONES_ICE.forEach(pos => {
+                        const input = document.querySelector(`input[name="precio_posicion_${pos.id}"]`);
+                        if (input) {
+                            const valor = data[`precio_posicion_${pos.id}`];
+                            input.value = valor !== null ? valor.toFixed(2) : ''; // Mostrar con 2 decimales
+                        }
+                    });
+
+                    if (divResultado) {
+                        divResultado.innerHTML = `<div class="success">✅ Datos para la fecha ${fecha} cargados.</div>`;
+                    }
+                    console.log(`[INFO] Datos cargados para la fecha: ${fecha}`);
+                } else if (response.status === 404) {
+                    console.log(`[WARN] No se encontró registro para la fecha: ${fecha}`);
+                    limpiarFormulario(false); // Limpiar solo los campos de datos, no la fecha
+                    // No mostrar error, solo dejar el formulario limpio
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
+                }
+            } catch (error) {
+                console.error(`[ERROR] Error al cargar datos para la fecha ${fecha}:`, error);
+                if (divResultado) {
+                    divResultado.innerHTML = `<div class="error">❌ Error al cargar datos para ${fecha}: ${error.message}</div>`;
+                }
+            } finally {
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // --- Función para guardar/actualizar el cierre ---
+        async function guardarCierre() {
+            console.log("[DEBUG] Iniciando proceso de guardado...");
+            const form = document.getElementById('form-cierre');
+            const fechaInput = document.getElementById('fecha');
+            const tasaInput = document.getElementById('tasa_cambio_bch');
+            const divResultado = document.getElementById('resultado');
+
+            const fecha = fechaInput.value;
+            if (!fecha) {
+                mostrarResultado("❌ Por favor, seleccione una fecha.", false);
+                return;
+            }
+
+            // 1. Recolectar y preparar datos del formulario
+            const formData = new FormData(form);
+            const data = {};
+
+            // Procesar la tasa BCH
+            const tasaValor = formData.get('tasa_cambio_bch');
+            if (tasaValor && tasaValor.trim() !== '') {
+                 const tasaNumerica = parseFloat(tasaValor);
+                 if (isNaN(tasaNumerica)) {
+                      mostrarResultado(`❌ El valor de la Tasa BCH '${tasaValor}' no es un número válido.`, false);
+                      return;
+                 }
+                 data['tasa_cambio_bch'] = tasaNumerica;
+            } else {
+                 data['tasa_cambio_bch'] = null;
+            }
+
+            // Procesar las posiciones ICE
+            for (const pos of POSICIONES_ICE) {
+                 const valorStr = formData.get(`precio_posicion_${pos.id}`);
+                 if (valorStr && valorStr.trim() !== '') {
+                      const valorNumerico = parseFloat(valorStr);
+                      if (isNaN(valorNumerico)) {
+                           mostrarResultado(`❌ El valor del precio para ${pos.nombre} '${valorStr}' no es un número válido.`, false);
+                           return;
+                      }
+                      data[`precio_posicion_${pos.id}`] = valorNumerico;
+                 } else {
+                      data[`precio_posicion_${pos.id}`] = null;
+                 }
+            }
+
+            // Agregar otros campos del formulario (fecha, fuentes)
+            data['fecha'] = formData.get('fecha');
+            data['fuente_precio'] = formData.get('fuente_precio');
+            data['fuente_tasa'] = formData.get('fuente_tasa');
+
+            console.log("[DEBUG] Datos a enviar:", data);
+
+            const url = `${BASE_URL}/cierre_ny_bch/`;
+            if (divResultado) divResultado.innerHTML = '<div class="info">📡 Enviando datos...</div>';
+
+            try {
+                console.log(`[FETCH] POST ${url}`);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log(`[FETCH] Respuesta del servidor: ${response.status}`);
+                if (response.ok) {
+                    const responseData = await response.json();
+                    console.log("[FETCH] Respuesta JSON del servidor:", responseData);
+                    mostrarResultado(`✅ Cierre guardado/actualizado correctamente para la fecha ${responseData.fecha}.`);
+                    console.log(`[INFO] Cierre guardado/actualizado para la fecha: ${responseData.fecha}`);
+                    
+                    // Opcional: Recargar el último cierre mostrado
+                    // Esto requeriría un endpoint específico o recargar la sección con HTMX
+                    // Por ahora, solo mostramos el mensaje.
+                    
+                } else {
+                    const errorText = await response.text();
+                    console.error(`[ERROR] Error del servidor: ${response.status} - ${errorText}`);
+                    throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
+                }
+            } catch (error) {
+                console.error("[ERROR] Error al guardar el cierre:", error);
+                mostrarResultado(`❌ Error al guardar el cierre: ${error.message}`, false);
+            }
+        }
+    </script>
+</body>
+</html>

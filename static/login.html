@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CaféHND Digital - Iniciar Sesión</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8e0; margin: 0; padding: 20px; }
+        .container { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
+        h1 { color: #4b2e2a; }
+        label { display: block; margin-top: 15px; text-align: left; font-weight: bold; }
+        input { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { margin-top: 20px; padding: 12px; background-color: #4b2e2a; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        button:hover { background-color: #361d1c; }
+        #resultado { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .success { background-color: #d4edda; color: #155724; }
+        #rol-indicador { font-size: 18px; font-weight: bold; color: #4b2e2a; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 CaféHND Digital</h1>
+        <div id="rol-indicador">Iniciar Sesión</div>
+        
+        <form id="loginForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="contraseña">Contraseña:</label>
+            <input type="password" id="contraseña" name="contraseña" required>
+            
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+        
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        // Leer el parámetro 'rol' de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const rol = urlParams.get('rol');
+
+        // Personalizar el mensaje según el rol
+        const indicador = document.getElementById('rol-indicador');
+        if (rol === 'exportador') {
+            indicador.textContent = 'Iniciar Sesión - Área Exportadores/Gestores';
+        } else if (rol === 'ihcafe') {
+            indicador.textContent = 'Iniciar Sesión - Área IHCAFE';
+        } else {
+            indicador.textContent = 'Iniciar Sesión';
+        }
+
+        // Manejar el envío del formulario con HTMX o Fetch
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const contraseña = document.getElementById('contraseña').value;
+            
+            // Enviar datos al backend (usando fetch para tener más control)
+            fetch('/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email, contraseña: contraseña })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultadoDiv = document.getElementById('resultado');
+                if (data.token) {
+                    // Guardar el token (por ejemplo, en localStorage)
+                    localStorage.setItem('token', data.token);
+                    // Redirigir según el rol (esto es una simplificación)
+                    // En una app real, el backend o el token deberían indicar el rol
+                    if (rol === 'ihcafe') {
+                        window.location.href = '/static/dashboard_ihcafe.html';
+                    } else {
+                         window.location.href = '/static/dashboard_exportador.html';
+                    }
+                } else {
+                    resultadoDiv.innerHTML = `<div class="error">${data.detail || 'Error desconocido'}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('resultado').innerHTML = '<div class="error">Error de conexión.</div>';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CaféHND Digital - Bienvenido</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8e0; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; text-align: center; }
+        h1 { color: #4b2e2a; }
+        .roles { display: flex; justify-content: space-around; margin-top: 40px; }
+        .role-box {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 45%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .role-box:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .role-box h2 { color: #4b2e2a; }
+        .role-box a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #4b2e2a;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .role-box a:hover {
+            background-color: #361d1c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 CaféHND Digital</h1>
+        <p>Sistema de Gestión de Exportación de Café de Honduras</p>
+        
+        <div class="roles">
+            <div class="role-box">
+                <h2>Exportadores / Gestores</h2>
+                <p>Accede a tus herramientas para registrar compras, ventas, solicitar certificados y más.</p>
+                <a href="/static/login.html?rol=exportador">Ingresar como Exportador/Gestor</a>
+            </div>
+            
+            <div class="role-box">
+                <h2>IHCAFE</h2>
+                <p>Panel de administración para supervisar, aprobar registros y gestionar exportadores.</p>
+                <a href="/static/login.html?rol=ihcafe">Ingresar como Personal IHCAFE</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

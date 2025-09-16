@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CaféHND Digital - Registro de Compras Nacionales</title>
+    <style>
+        :root {
+            --ihcafe-green: #4b2e2a;
+            --ihcafe-bg: #e0f0f8;
+            --success: #d4edda;
+            --error: #f8d7da;
+            --warning: #fff3cd;
+            --info: #d1ecf1;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--ihcafe-bg);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: var(--ihcafe-green);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        /* Ajuste para el campo de fecha */
+        input[type="date"] {
+            width: auto;
+            padding: 8px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: var(--ihcafe-green);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #361d1c;
+        }
+        #resultado {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .error {
+            background-color: var(--error);
+            color: #721c24;
+        }
+        .success {
+            background-color: var(--success);
+            color: #155724;
+        }
+        .info-box {
+            background-color: var(--warning);
+            padding: 15px;
+            border-left: 5px solid #ffc107;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .info-box-blue {
+            background-color: var(--info);
+            padding: 15px;
+            border-left: 5px solid #17a2b8;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .readonly {
+            background-color: #f9f9f9;
+            font-size: 0.9em;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .form-group-half {
+            flex: 0 0 calc(50% - 10px);
+        }
+        .form-group-small {
+            flex: 0 0 150px;
+        } /* Para la fecha */
+        .form-group-medium {
+            flex: 0 0 200px;
+        }
+        .form-group-full {
+            flex: 1 100%;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        .tasa-bch-input {
+            width: 120px;
+        }
+        .position-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        .position-table th, .position-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .position-table th {
+            background-color: #f2f2f2;
+        }
+        .position-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .position-table .close-input {
+            width: 100px;
+            text-align: right;
+        }
+        .loading {
+            color: #007bff;
+            font-style: italic;
+        }
+        #loading-indicator {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☕ CaféHND Digital - Registro de Compras Nacionales</h1>
+        <p>Ingrese los datos de la compra de café pergamino a un productor nacional.</p>
+
+        <!-- Sección: Formulario de Compra -->
+        <div class="section">
+            <h2>➕ Registrar Nueva Compra</h2>
+            <form id="form-compra">
+                <!-- Datos del Intermediario y Productor -->
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label for="id_intermediario" class="required">Intermediario:</label>
+                        <!-- En una implementación futura, esto se cargará dinámicamente -->
+                        <select id="id_intermediario" name="id_intermediario" required>
+                            <option value="">Seleccione un Intermediario...</option>
+                            <option value="1">Intermediario ABC S.A.</option>
+                            <option value="2">Café del Valle S. de R.L.</option>
+                            <option value="3">Comercializadora Cafetalera Ltda.</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-group-half">
+                        <label for="id_productor" class="required">Productor:</label>
+                        <!-- En una implementación futura, esto se cargará dinámicamente -->
+                        <select id="id_productor" name="id_productor" required>
+                            <option value="">Seleccione un Productor...</option>
+                            <option value="10">Finca El Progreso - Juan Pérez</option>
+                            <option value="11">Finca Santa Rita - María González</option>
+                            <option value="12">Cooperativa Cafetalera XYZ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Datos de la Compra -->
+                <div class="form-row">
+                    <div class="form-group form-group-small">
+                        <label for="fecha_compra" class="required">Fecha de Compra:</label>
+                        <input type="date" id="fecha_compra" name="fecha_compra" required>
+                    </div>
+
+                    <div class="form-group form-group-medium">
+                        <label for="tipo_cafe" class="required">Tipo de Café:</label>
+                        <select id="tipo_cafe" name="tipo_cafe" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Pergamino Humedo">Pergamino Húmedo</option>
+                            <option value="Pergamino Seco">Pergamino Seco</option>
+                            <option value="Guacuco">Guacuco</option>
+                            <option value="Natural">Natural (Oro Corriente)</option>
+                            <option value="Lavado">Lavado (Oro Lavado)</option>
+                            <option value="Resaca">Resaca</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numero_sacos" class="required">Número de Sacos:</label>
+                        <input type="number" id="numero_sacos" name="numero_sacos" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label for="precio_por_saco">Precio por Saco (Lps):</label>
+                        <input type="number" id="precio_por_saco" name="precio_por_saco" step="0.01" min="0">
+                        <div class="readonly">Precio unitario pactado con el productor.</div>
+                    </div>
+
+                    <div class="form-group form-group-half">
+                        <label for="numero_comprobante" class="required">Número de Comprobante:</label>
+                        <input type="text" id="numero_comprobante" name="numero_comprobante" placeholder="Ej: COMP-2025-001" required>
+                        <div class="readonly">Número del comprobante emitido por el intermediario.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numero_constancia_venta" class="required">Número de Constancia de Venta:</label>
+                        <input type="text" id="numero_constancia_venta" name="numero_constancia_venta" placeholder="Ej: CV-2025-001" required>
+                        <div class="readonly">Número de la constancia de venta entregada por el intermediario.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group form-group-full">
+                        <label for="observaciones">Observaciones:</label>
+                        <textarea id="observaciones" name="observaciones" rows="3" placeholder="Notas adicionales sobre la compra..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Botón de envío -->
+                <button type="button" id="registrar-btn">💾 Registrar Compra</button>
+            </form>
+            <div id="resultado"></div>
+        </div>
+
+        <div class="info-box-blue">
+            <strong>ℹ️ Instrucciones:</strong>
+            <ul>
+                <li><strong>Intermediario:</strong> Seleccione el intermediario del cual se adquirió el café.</li>
+                <li><strong>Productor:</strong> Seleccione el productor final del café (a quien se le compró).</li>
+                <li><strong>Fecha de Compra:</strong> Ingrese la fecha en que se realizó la transacción.</li>
+                <li><strong>Tipo de Café:</strong> Seleccione el tipo de café adquirido.</li>
+                <li><strong>Número de Sacos:</strong> Ingrese la cantidad total de sacos comprados.</li>
+                <li><strong>Precio por Saco:</strong> Ingrese el precio unitario acordado (opcional).</li>
+                <li><strong>Número de Comprobante:</strong> Ingrese el número del comprobante físico entregado por el intermediario.</li>
+                <li><strong>Número de Constancia de Venta:</strong> Ingrese el número de la constancia de venta entregada por el intermediario.</li>
+            </ul>
+        </div>
+        <div class="info-box">
+            <strong>💡 Notas:</strong>
+            <ul>
+                <li>La <strong>retención de L 10.50 por saco</strong> se calculará automáticamente al registrar la compra.</li>
+                <li>El sistema generará un <strong>número de constancia de compra</strong> único para su seguimiento.</li>
+                <li>En una versión futura, podrá <strong>adjuntar archivos escaneados</strong> del comprobante y constancia de venta.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuración ---
+        const BASE_URL = ""; // Se asume que el script corre desde el mismo dominio
+
+        // --- Funciones Auxiliares ---
+        function mostrarResultado(mensaje, esExito = true) {
+            const divResultado = document.getElementById('resultado');
+            divResultado.innerHTML = `<div class="${esExito ? 'success' : 'error'}">${mensaje}</div>`;
+            setTimeout(() => { divResultado.innerHTML = ''; }, 5000); // Limpiar después de 5 segundos
+        }
+
+        // --- Inicialización al cargar la página ---
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("Interfaz de Registro de Compras Nacionales cargada.");
+
+            // 1. Establecer fecha actual como predeterminada
+            const hoy = new Date();
+            const año = hoy.getFullYear();
+            const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+            const dia = String(hoy.getDate()).padStart(2, '0');
+            document.getElementById('fecha_compra').value = `${año}-${mes}-${dia}`;
+
+            // 2. Asignar evento click al botón de registrar
+            document.getElementById('registrar-btn').addEventListener('click', registrarCompra);
+        });
+
+        // --- Función para registrar la compra ---
+        async function registrarCompra() {
+            console.log("[DEBUG] Iniciando proceso de registro de compra...");
+            const form = document.getElementById('form-compra');
+            const divResultado = document.getElementById('resultado');
+
+            // 1. Recolectar datos del formulario
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // 2. Validaciones simples del lado del cliente (pueden mejorarse)
+            if (!data.fecha_compra || !data.id_intermediario || !data.id_productor ||
+                !data.tipo_cafe || !data.numero_sacos || !data.numero_comprobante ||
+                !data.numero_constancia_venta) {
+                mostrarResultado("❌ Por favor, complete todos los campos marcados con *.", false);
+                return;
+            }
+
+            // 3. Convertir campos numéricos
+            const camposNumericos = ['id_intermediario', 'id_productor', 'numero_sacos', 'precio_por_saco'];
+            camposNumericos.forEach(campo => {
+                if (data[campo] !== undefined && data[campo] !== '') {
+                    const valorNumerico = parseFloat(data[campo]);
+                    if (!isNaN(valorNumerico)) {
+                        data[campo] = valorNumerico;
+                    } else {
+                        // Si no es un número válido, lo dejamos como null o lo eliminamos
+                        console.warn(`[WARN] El valor '${data[campo]}' para el campo '${campo}' no es un número válido. Se omitirá.`);
+                        delete data[campo]; // O data[campo] = null;
+                    }
+                }
+            });
+
+            console.log("[DEBUG] Datos del formulario recolectados:", data);
+
+            // 4. Enviar datos mediante fetch
+            const url = `${BASE_URL}/compras_nacionales/`;
+            if (divResultado) divResultado.innerHTML = '<div class="info">📡 Enviando datos...</div>';
+
+            try {
+                console.log(`[FETCH] POST ${url}`);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log(`[FETCH] Respuesta recibida del servidor: ${response.status}`);
+                if (response.ok) {
+                    const responseData = await response.json();
+                    console.log("[FETCH] Respuesta JSON del servidor:", responseData);
+                    mostrarResultado(`✅ Compra registrada correctamente con Constancia de Compra: <strong>${responseData.numero_constancia_compra}</strong>`);
+                    form.reset(); // Limpiar el formulario
+                    
+                    // Reestablecer la fecha actual
+                    const hoy = new Date();
+                    const año = hoy.getFullYear();
+                    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+                    const dia = String(hoy.getDate()).padStart(2, '0');
+                    document.getElementById('fecha_compra').value = `${año}-${mes}-${dia}`;
+
+                } else {
+                    const errorText = await response.text();
+                    console.error(`[ERROR] Error del servidor: ${response.status} - ${errorText}`);
+                    throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
+                }
+            } catch (error) {
+                console.error("[ERROR] Error al registrar la compra:", error);
+                mostrarResultado(`❌ Error al registrar la compra: ${error.message}`, false);
+            }
+        }
+    </script>
+</body>
+</html>

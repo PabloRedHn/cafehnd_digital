@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Compras Nacionales - CaféHND Digital</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input[type="text"], input[type="number"], input[type="date"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="text"].readonly, input[type="number"].readonly, input[type="date"].readonly, select.readonly, textarea.readonly {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button.primary {
+            background-color: #3498db;
+            color: white;
+        }
+        button.secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        button.danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        .totals-row {
+            font-weight: bold;
+            background-color: #e9e9e9;
+        }
+        .info {
+            color: #2c3e50;
+            margin-top: 10px;
+        }
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+        .success {
+            color: #27ae60;
+            margin-top: 10px;
+        }
+        .detail-payment {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px dashed #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>INSTITUTO HONDUREÑO DEL CAFÉ</h1>
+    <h2>DEPARTAMENTO DE COMERCIALIZACIÓN</h2>
+    <h2>REGISTRO RESUMEN DE COMPRAS NACIONALES</h2>
+
+    <!-- Mensajes -->
+    <div id="mensaje"></div>
+
+    <!-- Información General -->
+    <div class="form-group">
+        <label for="fecha">Fecha del Reporte:</label>
+        <input type="date" id="fecha" name="fecha" required>
+    </div>
+
+    <div class="form-group">
+        <label for="reg_compa">No. de Reporte:</label>
+        <input type="text" id="reg_compa" name="reg_compa" class="readonly" readonly>
+    </div>
+
+    <div class="form-group">
+        <label for="exp_qic">Exportador (Código):</label>
+        <input type="text" id="exp_qic" name="exp_qic" class="readonly" readonly>
+    </div>
+
+    <div class="form-group">
+        <label for="cosecha">Cosecha:</label>
+        <input type="text" id="cosecha" name="cosecha" value="2024-2025" class="readonly" readonly>
+    </div>
+
+    <!-- Tabla de Datos -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">CAFÉ LAVADO</th>
+                    <th colspan="2">CAFÉ CORRIENTE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Sacos 46 Lbs</td>
+                    <td><input type="number" id="sacos46l" name="sacos46l" step="1" min="0" oninput="calcularTotales()"></td>
+                    <td>Sacos 46 Lbs</td>
+                    <td><input type="number" id="sacos46c" name="sacos46c" step="1" min="0" oninput="calcularTotales()"></td>
+                </tr>
+                <tr>
+                    <td>Valor en Lempiras</td>
+                    <td><input type="number" id="valorlemp" name="valorlemp" step="0.01" min="0" oninput="calcularTotales()"></td>
+                    <td>Valor en Lempiras</td>
+                    <td><input type="number" id="valorelemp" name="valorelemp" step="0.01" min="0" oninput="calcularTotales()"></td>
+                </tr>
+                <tr class="totals-row">
+                    <td>TOTAL SACOS</td>
+                    <td id="total_sacos_lavado">0</td>
+                    <td>TOTAL SACOS</td>
+                    <td id="total_sacos_corriente">0</td>
+                </tr>
+                <tr class="totals-row">
+                    <td>TOTAL VALOR</td>
+                    <td id="total_valor_lavado">0</td>
+                    <td>TOTAL VALOR</td>
+                    <td id="total_valor_corriente">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Gran Total -->
+    <div class="form-group">
+        <h3>GRAN TOTAL</h3>
+        <p><strong>Total Sacos:</strong> <span id="gran_total_sacos">0</span></p>
+        <p><strong>Total Valor (Lps):</strong> <span id="gran_total_valor">0.00</span></p>
+    </div>
+
+    <!-- Acumulados y Observaciones -->
+    <div class="form-group">
+        <label for="nuevo_acumulado_sacos">Nuevo Acumulado Sacos:</label>
+        <input type="number" id="nuevo_acumulado_sacos" name="nuevo_acumulado_sacos" step="1" min="0">
+    </div>
+
+    <div class="form-group">
+        <label for="sede">Sede:</label>
+        <input type="text" id="sede" name="sede">
+    </div>
+
+    <div class="form-group">
+        <label for="observaciones">Observaciones:</label>
+        <textarea id="observaciones" name="observaciones" rows="3"></textarea>
+    </div>
+
+    <!-- Detalle de Pago -->
+    <div class="detail-payment">
+        <h3>DETALLE DE PAGO</h3>
+        <p id="detalle_pago">Total de Sacos * $10.50 * Tasa de Cambio = ...</p>
+    </div>
+
+    <!-- Botones -->
+    <div class="button-group">
+        <button type="button" class="primary" onclick="cargarDatos()">Cargar Datos</button>
+        <button type="button" class="primary" onclick="guardarDatos()">Guardar</button>
+        <button type="button" class="secondary" onclick="limpiarFormulario()">Limpiar</button>
+    </div>
+</div>
+
+<script>
+    // URL base de la API
+    const API_URL = 'http://localhost:8000'; // Ajusta esto si tu backend corre en otro puerto
+
+    // --- Funciones de Utilidad ---
+    function mostrarMensaje(mensaje, tipo) {
+        const mensajeDiv = document.getElementById('mensaje');
+        mensajeDiv.textContent = mensaje;
+        mensajeDiv.className = tipo; // 'error' o 'success'
+        setTimeout(() => { mensajeDiv.textContent = ''; mensajeDiv.className = ''; }, 5000); // Limpiar mensaje después de 5 segundos
+    }
+
+    function formatearNumero(valor) {
+        if (valor === '' || isNaN(valor)) return '';
+        return parseFloat(valor).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function parsearNumero(valorFormateado) {
+        if (valorFormateado === '') return 0;
+        return parseFloat(valorFormateado.replace(/,/g, '')) || 0;
+    }
+
+    // --- Cálculos ---
+    function calcularTotales() {
+        const sacos46l = parseFloat(document.getElementById('sacos46l').value) || 0;
+        const valorlemp = parseFloat(document.getElementById('valorlemp').value) || 0;
+        const sacos46c = parseFloat(document.getElementById('sacos46c').value) || 0;
+        const valorelemp = parseFloat(document.getElementById('valorelemp').value) || 0;
+
+        // Totales por tipo de café
+        document.getElementById('total_sacos_lavado').textContent = sacos46l;
+        document.getElementById('total_sacos_corriente').textContent = sacos46c;
+        document.getElementById('total_valor_lavado').textContent = formatearNumero(valorlemp);
+        document.getElementById('total_valor_corriente').textContent = formatearNumero(valorelemp);
+
+        // Gran Total
+        const granTotalSacos = sacos46l + sacos46c;
+        const granTotalValor = valorlemp + valorelemp;
+        document.getElementById('gran_total_sacos').textContent = granTotalSacos;
+        document.getElementById('gran_total_valor').textContent = formatearNumero(granTotalValor);
+
+        // Calcular total de sacos para el detalle de pago
+        document.getElementById('detalle_pago').textContent = `Total de Sacos: ${granTotalSacos} * $10.50 * Tasa de Cambio = ...`;
+    }
+
+    // --- Lógica del Formulario ---
+    async function cargarDatos() {
+        const fecha = document.getElementById('fecha').value;
+        const exp_qic = document.getElementById('exp_qic').value;
+
+        if (!fecha) {
+            mostrarMensaje('Por favor, seleccione una fecha.', 'error');
+            return;
+        }
+
+        try {
+            // 1. Obtener el próximo número de reporte
+            // Necesitamos enviar el exp_qic para generar el número correctamente
+            if (!exp_qic) {
+                mostrarMensaje('Error: No se pudo obtener el código de exportador (exp_qic).', 'error');
+                return;
+            }
+            const responseRegCompa = await fetch(`${API_URL}/registro_compras_nac/proximo_reg_compa?exp_qic=${exp_qic}`);
+            if (!responseRegCompa.ok) {
+                const errorText = await responseRegCompa.text();
+                console.error('Error al obtener próximo reg_compa:', errorText);
+                throw new Error('Error al obtener el próximo número de reporte');
+            }
+            const dataRegCompa = await responseRegCompa.json();
+            document.getElementById('reg_compa').value = dataRegCompa.proximo_reg_compa;
+
+            // 2. Verificar si ya existe un registro para esta fecha y exportador
+            const responseExistente = await fetch(`${API_URL}/registro_compras_nac/por_fecha?fecha=${fecha}&exp_qic=${exp_qic}`);
+            if (responseExistente.status === 404) {
+                // No existe, formulario listo para nuevo registro
+                mostrarMensaje('No se encontró un registro para esta fecha. Puede crear uno nuevo.', 'info');
+                habilitarEdicion();
+                return;
+            }
+            if (!responseExistente.ok) {
+                const errorText = await responseExistente.text();
+                console.error('Error al verificar registro existente:', errorText);
+                throw new Error('Error al verificar registro existente');
+            }
+
+            const registros = await responseExistente.json();
+
+            // 3. Cargar datos
+            limpiarFormulario(); // Limpiar antes de cargar
+            document.getElementById('fecha').value = fecha;
+
+            registros.forEach(registro => {
+                if (registro.clase === 'Lavado') {
+                    document.getElementById('sacos46l').value = registro.sacos46l;
+                    document.getElementById('valorlemp').value = registro.valorlemp;
+                } else if (registro.clase === 'Corriente') {
+                    document.getElementById('sacos46c').value = registro.sacos46c;
+                    document.getElementById('valorelemp').value = registro.valorelemp;
+                }
+                // Cargar otros campos comunes
+                if (!document.getElementById('nuevo_acumulado_sacos').value) {
+                    document.getElementById('nuevo_acumulado_sacos').value = registro.nuevo_acumulado_sacos || '';
+                    document.getElementById('observaciones').value = registro.observaciones || '';
+                    document.getElementById('sede').value = registro.sede || '';
+                }
+            });
+
+            // 4. Verificar si el registro ya tiene ID
+            const tieneId = registros.some(r => r.registro);
+            if (tieneId) {
+                mostrarMensaje('Registro ya existe y tiene número asignado. Solo lectura.', 'info');
+                deshabilitarEdicion();
+            } else {
+                mostrarMensaje('Registro encontrado. Puede editarlo.', 'info');
+                habilitarEdicion();
+            }
+
+            // Recalcular totales
+            calcularTotales();
+
+        } catch (error) {
+            console.error('Error al cargar datos:', error);
+            mostrarMensaje('Error al cargar datos: ' + error.message, 'error');
+        }
+    }
+
+    async function guardarDatos() {
+        // Obtener y parsear valores, asegurando que sean números
+        const sacos46l = parseFloat(document.getElementById('sacos46l').value) || 0;
+        const valorlemp = parseFloat(document.getElementById('valorlemp').value) || 0;
+        const sacos46c = parseFloat(document.getElementById('sacos46c').value) || 0;
+        const valorelemp = parseFloat(document.getElementById('valorelemp').value) || 0;
+
+        const formData = {
+            fecha: document.getElementById('fecha').value,
+            exp_qic: document.getElementById('exp_qic').value,
+            cosecha: document.getElementById('cosecha').value,
+            sacos46l: sacos46l,
+            valorlemp: valorlemp,
+            sacos46c: sacos46c,
+            valorelemp: valorelemp,
+            sede: document.getElementById('sede').value,
+            nuevo_acumulado_sacos: parseInt(document.getElementById('nuevo_acumulado_sacos').value) || 0,
+            observaciones: document.getElementById('observaciones').value,
+        };
+
+        // Validación básica
+        if (!formData.fecha) {
+            mostrarMensaje('La fecha es obligatoria.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/registro_compras_nac/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text(); // Obtener el texto del error para más detalles
+                console.error('Error del servidor:', errorText);
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            mostrarMensaje('Registro guardado exitosamente.', 'success');
+            // Opcional: Recargar datos después de guardar
+            // cargarDatos();
+        } catch (error) {
+            console.error('Error al guardar datos:', error);
+            mostrarMensaje('Error al guardar datos: ' + error.message, 'error');
+        }
+    }
+
+    function limpiarFormulario() {
+        document.getElementById('fecha').value = '';
+        document.getElementById('reg_compa').value = '';
+        document.getElementById('cosecha').value = '2024-2025';
+        document.getElementById('sacos46l').value = '';
+        document.getElementById('valorlemp').value = '';
+        document.getElementById('sacos46c').value = '';
+        document.getElementById('valorelemp').value = '';
+        document.getElementById('sede').value = '';
+        document.getElementById('nuevo_acumulado_sacos').value = '';
+        document.getElementById('observaciones').value = '';
+        document.getElementById('detalle_pago').textContent = 'Total de Sacos * $10.50 * Tasa de Cambio = ...';
+        habilitarEdicion();
+        mostrarMensaje('', '');
+    }
+
+    function habilitarEdicion() {
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            if (!input.classList.contains('readonly')) {
+                input.removeAttribute('readonly');
+                input.classList.remove('readonly');
+            }
+        });
+    }
+
+    function deshabilitarEdicion() {
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            if (input.id !== 'fecha') {
+                input.setAttribute('readonly', 'readonly');
+                input.classList.add('readonly');
+            }
+        });
+    }
+
+    // --- Inicialización ---
+    window.onload = function() {
+        // Simular carga de datos de contexto (como exp_qic)
+        document.getElementById('exp_qic').value = '999'; // Ejemplo
+
+        // Escuchar cambios en la fecha
+        document.getElementById('fecha').addEventListener('change', function() {
+            // Actualizar el reg_compa cuando cambia la fecha
+            cargarDatos();
+        });
+
+        // Inicializar cálculos
+        calcularTotales();
+    };
+</script>
+
+</body>
+</html>
